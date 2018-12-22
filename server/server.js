@@ -1,4 +1,4 @@
-require('./config/config');
+require("./config/config");
 const express = require("express");
 const bodyParser = require("body-parser");
 const { ObjectID } = require("mongodb");
@@ -74,6 +74,24 @@ app.patch("/todos/:id", (req, res) => {
       res.send({ todo });
     })
     .catch(e => res.status(400).send());
+});
+
+// POST /users
+app.post("/users", (req, res) => {
+  const body = _.pick(req.body, ["email", "password"]);
+  const user = new User(body);
+
+  user
+    .save()
+    .then(() => {
+      return user.generateAuthToken();
+      // res.send(user);
+    })
+    .then(token => {
+      console.log(token);
+      res.header('x-auth', token).send(user)
+    })
+    .catch(err => res.status(400).send(err));
 });
 
 app.listen(port, () => {
